@@ -22,10 +22,11 @@
 - **Change Detection (GLC-FCS30D Dataset)**  
   https://essd.copernicus.org/articles/16/1353/2024/
 
-- **LULC** - IndiaSAT 
+- **LULC** - https://ee-corestackdev.projects.earthengine.app/view/core-stack-gee-app 
 - **ONEs Map** - https://one-india.fly.dev/
 - **Natural forests of the world**- https://www.nature.com/articles/s41597-025-06097-z
 
 - **Soil layer** - Food and agricultural organisation (FAO) Harmonised Soil Database (HWSD)
+
 
 - **Temperature (WorldClim BIO Variables V1)** https://developers.google.com/earth-engine/datasets/catalog/WORLDCLIM_V1_BIO
