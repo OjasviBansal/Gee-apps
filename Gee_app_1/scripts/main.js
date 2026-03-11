@@ -16,8 +16,10 @@ var temp = require('users/ojasvibansal_total_precipitation/Ecotype_App:gee-app/t
 
 // ================= GLOBAL VARIABLES =================
 var roi_boundary = null;
-var trainYears = {preDeg: null, restoration: null}; // Step 3 years
-var inferYears = {preDeg: null, current: null};     // Step 6 years
+var trainYears = {base: null, restoration: null}; // Step 3 years
+var inferYears = {base: null, current: null};     // Step 6 years
+
+var step5ValidationMask = null;
 
 // ================= CREATE TWO MAPS =================
 var trainingMap = ui.Map();
@@ -361,8 +363,8 @@ function show_legend_on_map() {
     {image: elevation.getLoadedImage ? elevation.getLoadedImage() : null, name: 'Elevation'},
     {image: soil.getLoadedImage ? soil.getLoadedImage() : null, name: 'Soil'},
     {image: ldd.getLoadedImage ? ldd.getLoadedImage() : null, name: 'Land Degradation'},
-    {image: changeDetection.getInferenceImage ? changeDetection.getInferenceImage(inferYears.preDeg, inferYears.current) : null, name: 'Change Detection'},
-    {image: fire.getLoadedImage ? fire.getLoadedImage(inferYears.preDeg, inferYears.current) : null, name: 'Fire'},
+    {image: changeDetection.getInferenceImage ? changeDetection.getInferenceImage() : null, name: 'Change Detection'},
+    {image: fire.getLoadedImage ? fire.getLoadedImage(inferYears.base, inferYears.current) : null, name: 'Fire'},
     {image: terrain.getLoadedImage ? terrain.getLoadedImage() : null, name: 'Terrain'},
     {image: naturalForests.getLoadedImage ? naturalForests.getLoadedImage() : null, name: 'Natural Forests'},
     {image: one_map.getOneMap ? one_map.getOneMap() : null, name: 'Open Natural Ecosystems (ONEs)'}, 
@@ -717,7 +719,7 @@ var loadRulesBtn = ui.Button({
 
     // ================= YEARS (TRAINING ONLY) =================
     if (rules.years && rules.years.train) {
-      trainYears.preDeg = rules.years.train.preDeg;
+      trainYears.base = rules.years.train.base;
       trainYears.restoration = rules.years.train.restoration;
     }
 
@@ -755,11 +757,46 @@ var loadRulesBtn = ui.Button({
     if (rules.change_detection && rules.years && rules.years.train) {
       changeDetection.setROI(roi_boundary, trainingMap);
       changeDetection.setYears(
-        rules.years.train.preDeg,
+        rules.years.train.base,
         rules.years.train.restoration,
         'validation'
       );
       changeDetection.setValues(rules.change_detection);
+      changeDetection.applyFromJSON(trainingMap, null);
+    }
+    
+    // ================= STEP 5: VALIDATION PIXELS =================
+    var masks = [];
+    
+    // Collect masks from modules that have loaded images
+    var r = rainfall.getLoadedImage ? rainfall.getLoadedImage() : null;
+    var t = temp.getLoadedImage ? temp.getLoadedImage() : null;
+    var e = elevation.getLoadedImage ? elevation.getLoadedImage() : null;
+    var s = soil.getLoadedImage ? soil.getLoadedImage() : null;
+    var tr = terrain.getLoadedImage ? terrain.getLoadedImage() : null;
+    var f = fire.getLoadedImage ? fire.getLoadedImage() : null;
+    var c = changeDetection.getTrainingImage ? changeDetection.getTrainingImage() : null;
+    
+    [r, t, e, s, tr, f, c].forEach(function(img){
+      if (img) masks.push(img);
+    });
+    
+    if (masks.length > 0) {
+    
+      step5ValidationMask = masks
+        .reduce(function(acc, img){
+          return acc.and(img);
+        });
+    
+      var vis = {palette:['yellow'], min:0, max:1};
+    
+      replaceLayer(
+        trainingMap,
+        'Validation pixels',
+        ui.Map.Layer(step5ValidationMask.selfMask(), vis, 'Validation pixels')
+      );
+    
+      print('✅ Validation pixels computed');
     }
 
     print('📘 Training map rules loaded');
@@ -776,11 +813,22 @@ var applyRulesBtn = ui.Button({
 
     // ================= YEARS (INFERENCE ONLY) =================
     if (rules.years && rules.years.infer) {
-      inferYears.preDeg = rules.years.infer.preDeg;
+      inferYears.base = rules.years.infer.base;
       inferYears.current = rules.years.infer.current;
     }
 
     // ================= INFERENCE-ONLY MODULES =================
+    if (rules.change_detection && rules.years && rules.years.infer) {
+      changeDetection.setROI(roi_boundary, inferenceMap);
+      changeDetection.setYears(
+        rules.years.infer.base,
+        rules.years.infer.current,
+        'test'
+      );
+      changeDetection.setValues(rules.change_detection);
+      changeDetection.applyFromJSON(null, inferenceMap);
+    }
+
     if (rules.lulc) {
       lulcAnalysis.setROI(roi_boundary, inferenceMap, inferYears.current);
       lulcAnalysis.setValues(rules.lulc, inferenceMap);
@@ -795,6 +843,49 @@ var applyRulesBtn = ui.Button({
     if (rules.ones) {
       one_map.setROI(roi_boundary, inferenceMap);
       one_map.setValues(rules.ones);
+    }
+    
+    // ================= FINAL INFERENCE AND PIXELS =================
+    var masks = [];
+    
+    // Collect masks from modules that are loaded on inference map
+    var r  = rainfall.getLoadedImage ? rainfall.getLoadedImage() : null;
+    var t  = temp.getLoadedImage ? temp.getLoadedImage() : null;
+    var e  = elevation.getLoadedImage ? elevation.getLoadedImage() : null;
+    var s  = soil.getLoadedImage ? soil.getLoadedImage() : null;
+    var tr = terrain.getLoadedImage ? terrain.getLoadedImage() : null;
+    var f  = fire.getLoadedImage ? fire.getLoadedImage(inferYears.base, inferYears.current) : null;
+    var cd = changeDetection.getInferenceImage ? changeDetection.getInferenceImage() : null;
+    
+    [r, t, e, s, tr, f, cd].forEach(function(img){
+      if (img) masks.push(img);
+    });
+    
+    if (masks.length > 0) {
+    
+      var inferenceMask = masks.reduce(function(acc, img){
+        return acc.and(img);
+      });
+    
+      var vis = {palette:['yellow'], min:0, max:1};
+      
+      // remove existing inference pixels layer if present
+      var layers = inferenceMap.layers();
+      
+      for (var i = layers.length() - 1; i >= 0; i--) {
+        var layer = layers.get(i);
+        if (layer.getName() === 'Computed pixels') {
+          inferenceMap.layers().remove(layer);
+        }
+      }
+    
+      replaceLayer(
+        inferenceMap,
+        'Inference pixels',
+        ui.Map.Layer(inferenceMask.selfMask(), vis, 'Computed pixels')
+      );
+    
+      print('✅ Inference AND pixels computed');
     }
 
     print('📕 Inference map rules applied');
@@ -840,13 +931,13 @@ var applyRulesBtn = ui.Button({
 
       // ---- Training map years (Step 3) ----
       if (rules.years.train) {
-        trainYears.preDeg = rules.years.train.preDeg;
+        trainYears.base = rules.years.train.base;
         trainYears.restoration = rules.years.train.restoration;
       }
 
       // ---- Inference map years (Step 6) ----
       if (rules.years.infer) {
-        inferYears.preDeg = rules.years.infer.preDeg;
+        inferYears.base = rules.years.infer.base;
         inferYears.current = rules.years.infer.current;
       }
     }
@@ -899,17 +990,17 @@ var applyRulesBtn = ui.Button({
       changeDetection.setROI(roi_boundary, trainingMap);
       changeDetection.setROI(roi_boundary, inferenceMap);
       changeDetection.setYears(
-        rules.years.train.preDeg,
+        rules.years.train.base,
         rules.years.train.restoration,
         'validation'
       );
       changeDetection.setYears(
-        rules.years.infer.preDeg,
+        rules.years.infer.base,
         rules.years.infer.current,
         'test'
       );
       changeDetection.setValues(rules.change_detection);
-      changeDetection.applyFromJSON(trainingMap, inferenceMap);
+      changeDetection.applyFromJSON(null, inferenceMap);
     }
 
     // ---------- INFERENCE-ONLY MODULES ----------
@@ -992,8 +1083,8 @@ function showAndOnMap() {
     {image: elevation.getLoadedImage ? elevation.getLoadedImage() : null, name: 'Elevation'},
     {image: soil.getLoadedImage ? soil.getLoadedImage() : null, name: 'Soil'},
     {image: ldd.getLoadedImage ? ldd.getLoadedImage() : null, name: 'Land Degradation'},
-    {image: changeDetection.getInferenceImage ? changeDetection.getInferenceImage(inferYears.preDeg, inferYears.current) : null, name: 'Change Detection'},
-    {image: fire.getLoadedImage ? fire.getLoadedImage(inferYears.preDeg, inferYears.current) : null, name: 'Fire'},
+    {image: changeDetection.getInferenceImage ? changeDetection.getInferenceImage() : null, name: 'Change Detection'},
+    {image: fire.getLoadedImage ? fire.getLoadedImage(inferYears.base, inferYears.current) : null, name: 'Fire'},
     {image: terrain.getLoadedImage ? terrain.getLoadedImage() : null, name: 'Terrain'},
     {image: one_map.getOneMap ? one_map.getOneMap() : null, name: 'Open Natural Ecosystems (ONEs)'}, 
     {image: step5ValidationMask || null, name: 'Validation pixels'}
@@ -1105,7 +1196,7 @@ var enterStep3YearsBtn = ui.Button({
       print('Please enter valid numeric years for Step 4.');
       return;
     }
-    trainYears.preDeg = valStart;
+    trainYears.base = valStart;
     trainYears.restoration = valEnd;
     changeDetection.setYears(valStart, valEnd, 'validation');
     fire.setYears(valStart, valEnd, 'validation');
@@ -1127,7 +1218,7 @@ controlPanel.add(ui.Label({
 // Track last validation layer + legend
 var lastValidationLayer = null;
 var lastValidationLegend = null;
-var step5ValidationMask = null;
+// var step5ValidationMask = null;
 var step5MaskNoChangeDet = null;
 var step5UsedChangeDet = false;
 var runValidationBtn = ui.Button({
@@ -1168,7 +1259,7 @@ var runValidationBtn = ui.Button({
       return;
     }
     var roi = roi_boundary;
-    var valStart = trainYears.preDeg || null;
+    var valStart = trainYears.base || null;
     var valEnd = trainYears.restoration || null;
     var changeDetImg = null;
     var fireImg = null;
@@ -1323,7 +1414,7 @@ var computeAndBtn = ui.Button({
     var nfImg = naturalForests.getLoadedImage ? naturalForests.getLoadedImage() : null;
     var terrainImg = terrain.getLoadedImage && ldd.getLoadedImage() ? terrain.getLoadedImage() : null;
     var fireImg = fire.getLoadedImage ? fire.getLoadedImage(trainYears.restoration, currentYear) : null;
-    var changeDetImg = changeDetection.getInferenceImage ? changeDetection.getInferenceImage(trainYears.restoration, Math.min(currentYear, 2022)) : null;
+    var changeDetImg = changeDetection.getInferenceImage ? changeDetection.getInferenceImage() : null;
     var andImage; 
     if (step5ValidationMask) {
       andImage = step5ValidationMask;
@@ -1644,11 +1735,11 @@ var downloadRulesBtn = ui.Button({
       // adding years description
       rulesObj.years = {
         train: {
-          preDeg: trainYears.preDeg,
+          base: trainYears.base,
           restoration: trainYears.restoration
         },
         infer: {
-          preDeg: inferYears.preDeg,
+          base: inferYears.base,
           current: inferYears.current
         }
       };
