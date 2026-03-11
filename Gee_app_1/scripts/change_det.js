@@ -151,11 +151,22 @@ exports.getPanel = function() {
   var clearBtn = ui.Button('Clear Map');
   panel.add(ui.Panel([runBtn, clearBtn], ui.Panel.Layout.flow('horizontal')));
 
+  // function clearPreview() {
+  //   layers.forEach(function(ent) { if (isMap(ent.map)) ent.map.remove(ent.layer); });
+  //   layers = [];
+  //   loadedPreviewLayer = null;
+  //   loadedImage = null;  // ✅ reset the global image too
+  // }
   function clearPreview() {
-    layers.forEach(function(ent) { if (isMap(ent.map)) ent.map.remove(ent.layer); });
-    layers = [];
-    loadedPreviewLayer = null;
-    loadedImage = null;  // ✅ reset the global image too
+    if (!activeMaps.length) return;
+    var m = activeMaps[0];
+    var layersList = m.layers();
+    for (var i = layersList.length() - 1; i >= 0; i--) {
+      var lyr = layersList.get(i);
+      if (lyr.getName() === 'Change (validation)') {
+        layersList.remove(lyr);
+      }
+    }
   }
 
   // ---- Only training map preview here ----
