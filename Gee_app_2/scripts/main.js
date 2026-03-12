@@ -112,9 +112,18 @@ var projectRegions = [
     rainfall: [500, 900],
     elevation: [60, 120],
     terrain: [5,6],
-    // change_detection: [[1,3], [1,3,8]],
     change_detection: [[2], [2]],
-    // lulc: [7,12]
+    lulc: [6]
+  },
+  {
+    name: 'Pandalgudi2, Tamil Nadu',
+    roi: getEcoRegionROI(77.7604, 11.3670),
+    center: [77.7604, 11.3670],
+    years: [1985, 2018, 2018, 2024],
+    rainfall: [500, 900],
+    elevation: [60, 120],
+    terrain: [5,6],
+    change_detection: [[2], [2]],
     lulc: [6]
   },
   {
@@ -319,18 +328,6 @@ function showAndOnMap() {
     print('No layers loaded yet');
     return;
   }
-
-  // Remove previous layers to avoid duplicates
-  var layers = map.layers();  // returns LayerStack
-  var layerCount = layers.length;  
-  for (var j = layerCount - 1; j >= 0; j--) {
-    var layer = layers.get(j);
-    if (layer.getName() === 'AND of Layers' || filteredLayers.some(function(l) {
-          return l.name === layer.getName();
-    })) {
-      layers.remove(layer);
-    }
-  }
   
   var mapLayers = map.layers();
   var layerCount = mapLayers.length();
@@ -354,13 +351,53 @@ function showAndOnMap() {
   filteredLayers.forEach(function(l) {
     map.addLayer(l.image.clip(roi_boundary), {palette: layerPalettes[l.name], min: 0, max: 1}, l.name);
   });
+  
+  filteredLayers.forEach(function(l){
+    print(l.name, l.image.bandNames());
+  });
+  
+//   // Export each filtered layer for debugging
+// filteredLayers.forEach(function(l) {
 
-  // Compute AND of all layers
-  var andImage = filteredLayers[0].image.gt(0).selfMask();
-  for (var i = 1; i < filteredLayers.length; i++) {
-    andImage = andImage.and(filteredLayers[i].image.gt(0).selfMask());
-  }
-  andImage = andImage.clip(roi_boundary).selfMask();
+//   var img = ee.Image(l.image)
+//     .clip(roi_boundary)
+//     .select([0])
+//     .gt(0)
+//     .unmask(0)
+//     .toByte()
+//     .rename(l.name.replace(/\s+/g, '_'));
+
+//   Export.image.toAsset({
+//     image: img,
+//     description: 'DEBUG_' + l.name.replace(/\s+/g, '_'),
+//     assetId: 'projects/ee-ojasvi/assets/debug_' + l.name.replace(/\s+/g, '_'),
+//     region: roi_boundary,
+//     scale: 30,
+//     maxPixels: 1e13
+//   });
+
+// });
+  
+  // 1. Create a base image of 1s (True) to start the AND chain
+  var andImage = ee.Image(1).clip(roi_boundary);
+
+  // 2. Loop through each layer and apply a strict bitwise AND
+  filteredLayers.forEach(function(l) {
+    var binaryLayer = l.image
+      .clip(roi_boundary)
+      .select([0])
+      .gt(0)
+      .unmask(0); // Treats any 'NoData' area as False (0)
+    andImage = andImage.and(binaryLayer);
+  });
+  
+  // 3. Finalize the image
+  andImage = andImage
+    .rename('AND')
+    .selfMask() // Only keeps pixels that are 1
+    .clip(roi_boundary)
+    .toByte();
+  
   currentAndImage = andImage;
 
   // Add AND layer
@@ -459,17 +496,6 @@ function showAndOnMap2() {
   }
 
   // Remove previous layers to avoid duplicates
-  var layers = map.layers();  // returns LayerStack
-  var layerCount = layers.length;  
-  for (var j = layerCount - 1; j >= 0; j--) {
-    var layer = layers.get(j);
-    if (layer.getName() === 'AND of Layers' || filteredLayers.some(function(l) {
-          return l.name === layer.getName();
-    })) {
-      layers.remove(layer);
-    }
-  }
-  
   var mapLayers = map.layers();
   var layerCount = mapLayers.length();
   for (var j = layerCount - 1; j >= 0; j--) {
@@ -501,11 +527,27 @@ function showAndOnMap2() {
 
 
   // Compute AND of all layers
-  var andImage = filteredLayers[0].image.gt(0).selfMask();
-  for (var i = 1; i < filteredLayers.length; i++) {
-    andImage = andImage.and(filteredLayers[i].image.gt(0).selfMask());
-  }
-  andImage = andImage.clip(roi_boundary).selfMask();
+  // var andImage = filteredLayers[0].image.gt(0).selfMask();
+  // for (var i = 1; i < filteredLayers.length; i++) {
+  //   andImage = andImage.and(filteredLayers[i].image.gt(0).selfMask());
+  // }
+  // andImage = andImage.clip(roi_boundary).selfMask();
+  // currentAndImage = andImage;
+  // Start with a constant image of 1s
+  var andImage = ee.Image(1).clip(roi_boundary);
+
+  filteredLayers.forEach(function(l) {
+    var binary = l.image
+      .clip(roi_boundary)
+      .select([0])
+      .gt(0)
+      .unmask(0); // This treats "No Data" as "False", killing the pixel
+    
+    andImage = andImage.and(binary);
+  });
+
+  // Final mask and clip
+  andImage = andImage.rename('AND').selfMask().clip(roi_boundary).toByte();
   currentAndImage = andImage;
 
   // Add AND layer
@@ -625,7 +667,7 @@ var setRegionBtn = ui.Button({
     }
     if (selected.lulc) lulcAnalysis.setValues(selected.lulc);
     if (selected.ones) ones.setValues(selected.ones);
-    if (selected.naturalForests) ones.setValues(selected.naturalForests);
+    if (selected.naturalForests) naturalForests.setValues(selected.naturalForests);
 
     // map.centerObject(roi_boundary, 5);
 
@@ -1394,44 +1436,87 @@ controlPanel.add(downloadRulesBtn);
 
 
 
+// var exportVectorBtn = ui.Button({
+//   label: 'Export AND as Polygons (SHP)',
+//   onClick: function() {
+
+//     if (!currentAndImage || !roi_boundary) {
+//       print('⚠️ Compute AND and set ROI first.');
+//       return;
+//     }
+
+//     // var polygons = currentAndImage.reduceToVectors({
+//     //   geometry: roi_boundary,
+//     //   scale: 30,
+//     //   geometryType: 'polygon',
+//     //   eightConnected: true,
+//     //   labelProperty: 'AND',
+//     //   reducer: ee.Reducer.countEvery()
+//     // });
+    
+//     var polygons = currentAndImage
+//     .clip(roi_boundary)   // VERY IMPORTANT
+//     .selfMask()
+//     .toInt()
+//     .reduceToVectors({
+//       geometry: roi_boundary,
+//       scale: 30,           
+//       geometryType: 'polygon',
+//       eightConnected: true,
+//       labelProperty: 'AND',
+//       // reducer: ee.Reducer.countEvery(),   
+//       maxPixels: 1e13,              // increase pixel limit
+//       bestEffort: true              // auto-adjust if still too large
+//     });
+
+//     Export.table.toDrive({
+//       collection: polygons,
+//       description: 'AND_Polygons',
+//       folder: 'GEE_Exports',
+//       fileFormat: 'SHP'
+//     });
+
+//     print('✅ Polygon export task created. Check Tasks tab.');
+//   }
+// });
+
 var exportVectorBtn = ui.Button({
   label: 'Export AND as Polygons (SHP)',
   onClick: function() {
-
     if (!currentAndImage || !roi_boundary) {
       print('⚠️ Compute AND and set ROI first.');
       return;
     }
 
-    // var polygons = currentAndImage.reduceToVectors({
-    //   geometry: roi_boundary,
-    //   scale: 30,
-    //   geometryType: 'polygon',
-    //   eightConnected: true,
-    //   labelProperty: 'AND',
-    //   reducer: ee.Reducer.countEvery()
-    // });
-    
-    var polygons = currentAndImage
-    .clip(roi_boundary)
-    .reduceToVectors({
+    // RE-EVALUATE AND LOGIC FOR EXPORT
+    // We force the image to be 1 only where currentAndImage is 1, 
+    // and explicitly mask out everything else.
+    var exportImage = currentAndImage
+      .updateMask(currentAndImage.gt(0)) // Remove all 0/NoData pixels
+      .clip(roi_boundary)                // Hard-cut at ecoregion boundary
+      .toInt();                          // Required for reduceToVectors
+
+    var polygons = exportImage.reduceToVectors({
       geometry: roi_boundary,
-      scale: 50,
+      scale: 30,                         // MUST be 30 to match LULC resolution
       geometryType: 'polygon',
       eightConnected: true,
       labelProperty: 'AND',
       maxPixels: 1e13,
-      bestEffort: true
+      bestEffort: false                  // Set to false to force accuracy
     });
 
+    // Final spatial filter to remove any "ghost" pixels outside the boundary
+    var finalPolygons = polygons.filterBounds(roi_boundary);
+
     Export.table.toDrive({
-      collection: polygons,
-      description: 'AND_Polygons',
+      collection: finalPolygons,
+      description: 'Export_AND_polygon',
       folder: 'GEE_Exports',
       fileFormat: 'SHP'
     });
 
-    print('✅ Polygon export task created. Check Tasks tab.');
+    print('✅ Strict Task Created. Run it in the Tasks tab.');
   }
 });
 
