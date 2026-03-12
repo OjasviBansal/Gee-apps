@@ -115,7 +115,7 @@ function computeChange(startYear, endYear, startClasses, endClasses, roi) {
   var start_mask = getLayerMask(start_img, startClasses);
   var end_mask = getLayerMask(end_img, endClasses);
   var transition_mask = start_mask.and(end_mask).clip(roi);
-  return transition_mask.selfMask();
+  return transition_mask.unmask(0);
 }
 
 // ==================== PUBLIC: training & inference images ====================
