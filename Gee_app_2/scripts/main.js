@@ -102,7 +102,11 @@ var projectRegions = [
     terrain: [1,2,3,6,7,8,9,10,11],
     change_detection: [[1,2,4], [1,3,8]],
     // wasteland: [2,4,6],
-    lulc: [7, 9, 10, 11, 12]
+    lulc: [7, 9, 10, 11, 12],
+    project_name:'Kedarnath Bugyal Conservation Project under Conservation Catalyst Programme',
+    description:'With the financial and mentoring support from WWF-India, the Gramya Sikshan Paryavaran Sanstha is engaged in community led conservation of Manpai Bugyal (alipine) located inside the Kedarnath Wildlife Sanctuary in Uttarakhand (India). Manpai Bugyal of the Wildlife Sanctuary, which is spread in about 200 hectare area between 3600 to 4000 meter elevations. The Manpai Bugyal has been traditionally recognized as holly land that has strong connection with local religious and cultural practices. However, the effectiveness of traditionally organized activities of dependent villagers related to culture, religion, sheep rearing and harvesting of herbs has deteriorated. Major reasons behind this deterioration of social safeguards include inability of traditional social system to recognize and respond new challenges of increasing anthropogenic pressure and rapid commercialization of herbs and other alpine resources. The opportunity that we have in hand in order to conserve these Alpine rangelands is existence of locally formed people’s institution for religious and cultural interventions in the alpine and socially organized form of summer sheep rearing in the region. These two socially imbedded systems that interact with Bugyals (alpines) will be mobilized to educate and monitor sustainable harvesting of herbs for commercial uses. Key Project Activities: Educate all stakeholders, Community led assessment, Documentation of traditional practices and beliefs, Developing capacity of stakeholders',
+    contact:'Jeet Singh - jssanwal@gmail.com',
+    usecase: 'Scaling up successful restoration'
   },
   {
     name: 'Pandalgudi, Tamil Nadu',
@@ -113,19 +117,23 @@ var projectRegions = [
     elevation: [60, 120],
     terrain: [5,6],
     change_detection: [[2], [2]],
-    lulc: [6]
+    lulc: [6],
+    project_name:'Flora of the Presidency of Madras - Pandalgudi',
+    description:'Finding reference sites similar to pandalgudi polygons',
+    contact:'Anand Kr.p - anand82546@gmail.com / 8979977330',
+    usecase: 'Finding reference sites'
   },
-  {
-    name: 'Pandalgudi2, Tamil Nadu',
-    roi: getEcoRegionROI(77.7604, 11.3670),
-    center: [77.7604, 11.3670],
-    years: [1985, 2018, 2018, 2024],
-    rainfall: [500, 900],
-    elevation: [60, 120],
-    terrain: [5,6],
-    change_detection: [[2], [2]],
-    lulc: [6]
-  },
+  // {
+  //   name: 'Pandalgudi2, Tamil Nadu',
+  //   roi: getEcoRegionROI(77.7604, 11.3670),
+  //   center: [77.7604, 11.3670],
+  //   years: [1985, 2018, 2018, 2024],
+  //   rainfall: [500, 900],
+  //   elevation: [60, 120],
+  //   terrain: [5,6],
+  //   change_detection: [[2], [2]],
+  //   lulc: [6]
+  // },
   {
     name: 'Aravali Biodiversity Park, Gurugram',
     roi: getEcoRegionROI(77.24, 28.57),
@@ -136,7 +144,11 @@ var projectRegions = [
     terrain: [5,6,9],
     // wasteland: [1,2],
     change_detection: [[1,2,3,4], [3,8]],
-    lulc: [7,8,9,10,11,12]
+    lulc: [7,8,9,10,11,12],
+    project_name:'Aravali Biodiversity Park, Gurugram',
+    description:'Earlier a mining quarry and stone crushing site',
+    contact:'Vijay Dhasmana - 9999050664',
+    usecase: 'Scaling up successful restoration'
   },
   {
     name: 'Ammagal Shola-grassland Restoration',
@@ -148,7 +160,11 @@ var projectRegions = [
     terrain: [6,7,8,10],
     // wasteland: [2,4,6,7,8,11],
     change_detection: [[1,2,3,4], [3,8]],
-    lulc: [7,8,9,10,11,12]
+    lulc: [7,8,9,10,11,12],
+    project_name:'Ammagal Ecological Restoration of shola-grassland project ',
+    description:'Restoring a tea garden to its erstwhile shola-grassland habitat, using scientific ecological principles along with Traditional Knowledge of the Toda IP. Please view the Power Point presentation delivered at the ERA-India Conference plenary in Panchgani, in 2024 for additional information. Other data can be seen on the website: www.ebrtrust.org',
+    contact:'Tarun Chabra - kwattein1@gmail.com',
+    usecase: 'Scaling up successful restoration'
   },
   {
     name: 'Darjeeling Hills / Project SERVE',
@@ -160,7 +176,11 @@ var projectRegions = [
     terrain: [1,2,3,8,9,11],
     // wasteland: [2,4,6,7],
     change_detection: [[1,2,3,8], [3,8]],
-    lulc: [7,8,9,10,11,12]
+    lulc: [7,8,9,10,11,12],
+    project_name:'Project SERVE',
+    description:'Save the Environment and Regenerate Vital Employment (SERVE) is a comprehensive initiative aimed at environmental conservation and livelihood security in the Darjeeling and Kalimpong hills. The project aligns with the UN’s Decade of Ecosystem Restoration (2021-2030) and addresses key regional challenges such as forest degradation, habitat fragmentation, water scarcity, and human-wildlife conflicts.',
+    contact:'Rishi Kumar Sharma - 9643712087/rksharma@wwfindia.net',
+    usecase: 'Scaling up successful restoration'
   },
   {
     name: 'Rekhalgere site / Medius Earth',
@@ -172,7 +192,11 @@ var projectRegions = [
     terrain: [5,6,8,9],
     // wasteland: [2,4,6],
     change_detection: [[1,2,3,4,8],[3,8]],
-    lulc: [7,8,9,10,11,12]
+    lulc: [7,8,9,10,11,12],
+    project_name:'Medius Earth',
+    description:'NS',
+    contact:'Pradyot Porwal - pradyot@mediusearth.com',
+    usecase: 'Scaling up successful restoration'
   }
 ];
 
@@ -200,7 +224,6 @@ function createGoToLocationButton(map, labelText) {
     }
   });
 }
-
 
 
 function keepReferenceLayersOnTop() {
@@ -261,11 +284,6 @@ function keepReferenceLayersOnTop() {
 }
 
 
-
-
-
-
-
 rainfall.setKeepMarkerOnTop(keepReferenceLayersOnTop);
 temp.setKeepMarkerOnTop(keepReferenceLayersOnTop);
 elevation.setKeepMarkerOnTop(keepReferenceLayersOnTop);
@@ -293,7 +311,7 @@ function showAndOnMap() {
     {image: soil.getLoadedImage ? soil.getLoadedImage() : null, name: 'Soil'},
     // {image: wasteland.getLoadedImage ? wasteland.getLoadedImage() : null, name: 'Wasteland'},
     {image: ldd.getLoadedImage ? ldd.getLoadedImage() : null, name: 'Land Degradation'},
-    {image: changeDetection.getInferenceImage ? changeDetection.getInferenceImage(inferYears.preDeg, inferYears.current) : null, name: 'Change Detection'},
+    {image: changeDetection.getInferenceImage ? changeDetection.getInferenceImage() : null, name: 'Change Detection'},  //inferYears.preDeg, inferYears.current
     {image: fire.getLoadedImage ? fire.getLoadedImage(inferYears.preDeg, inferYears.current) : null, name: 'Fire'},
     {image: terrain.getLoadedImage ? terrain.getLoadedImage() : null, name: 'Terrain'},
     {image: ones.getOneMap ? ones.getOneMap() : null, name: 'Open Natural Ecosystems (ONEs)'},
@@ -459,7 +477,7 @@ function showAndOnMap2() {
     {image: soil.getLoadedImage ? soil.getLoadedImage() : null, name: 'Soil'},
     // {image: wasteland.getLoadedImage ? wasteland.getLoadedImage() : null, name: 'Wasteland'},
     {image: ldd.getLoadedImage ? ldd.getLoadedImage() : null, name: 'Land Degradation'},
-    {image: changeDetection.getInferenceImage ? changeDetection.getInferenceImage(inferYears.preDeg, inferYears.current) : null, name: 'Change Detection'},
+    {image: changeDetection.getInferenceImage ? changeDetection.getInferenceImage() : null, name: 'Change Detection'}, //inferYears.preDeg, inferYears.current
     {image: fire.getLoadedImage ? fire.getLoadedImage(inferYears.preDeg, inferYears.current) : null, name: 'Fire'},
     {image: terrain.getLoadedImage ? terrain.getLoadedImage() : null, name: 'Terrain'},
     {image: ones.getOneMap ? ones.getOneMap() : null, name: 'Open Natural Ecosystems (ONEs)'},
@@ -611,6 +629,31 @@ var setRegionBtn = ui.Button({
       }
     }
     roi_boundary = selected.roi;
+    
+    // ================= SET PROJECT METADATA FROM REGION =================
+    if (selected.project_name) {
+      projectNameBox.setValue(selected.project_name);
+      projectName = selected.project_name;
+    }
+    
+    if (selected.description) {
+      projectDescBox.setValue(selected.description);
+      projectDescription = selected.description;
+    }
+    
+    if (selected.contact) {
+      contactBox.setValue(selected.contact);
+      projectContact = selected.contact;
+    }
+    
+    print('Project metadata initialized from region');
+    
+    // ================= SET USE CASE FROM REGION =================
+    if (selected.usecase) {
+      useCaseDropdown.setValue(selected.usecase);
+      projectUseCase = selected.usecase;
+      print('Use case initialized:', selected.usecase);
+    }
     
     // ================= SET YEARS FROM REGION =================
     if (selected.years && selected.years.length === 4) {
@@ -765,9 +808,6 @@ controlPanel.add(regionDropdown);
 controlPanel.add(ui.Panel([setRegionBtn, clearRegionBtn], ui.Panel.Layout.flow('horizontal')));
 
 
-
-
-
 // ================= UPLOAD JSON RULES =================
 controlPanel.add(ui.Label('Load rules from JSON', {
   fontWeight: 'bold',
@@ -817,6 +857,31 @@ var applyJsonTextBtn = ui.Button({
       applyRulesFromJSON(JSON.stringify(obj));
 
       print('✅ Rules applied from textbox JSON');
+      
+      if (obj.metadata) {
+
+        if (obj.metadata.project_name) {
+          projectNameBox.setValue(obj.metadata.project_name);
+          projectName = obj.metadata.project_name;
+        }
+
+        if (obj.metadata.description) {
+          projectDescBox.setValue(obj.metadata.description);
+          projectDescription = obj.metadata.description;
+        }
+
+        if (obj.metadata.contact) {
+          contactBox.setValue(obj.metadata.contact);
+          projectContact = obj.metadata.contact;
+        }
+
+        if (obj.metadata.use_case) {
+          useCaseDropdown.setValue(obj.metadata.use_case);
+          projectUseCase = obj.metadata.use_case;
+        }
+
+        print('📌 Project metadata loaded from JSON');
+      }
 
     } catch (e) {
       print('❌ Invalid JSON. Error: ' + e);
@@ -826,6 +891,64 @@ var applyJsonTextBtn = ui.Button({
 
 controlPanel.add(applyJsonTextBtn);
 
+
+// ================= PROJECT META INPUTS =================
+var projectName = null;
+var projectDescription = null;
+var projectContact = null;
+var projectUseCase = null;
+
+controlPanel.add(ui.Label('Project Metadata', {fontWeight:'bold', fontSize:'16px'}));
+
+var projectNameBox = ui.Textbox({
+  placeholder: 'Project Name',
+  style: {stretch:'horizontal'}
+});
+
+var projectDescBox = ui.Textbox({
+  placeholder: 'Description',
+  style: {stretch:'horizontal'}
+});
+
+var contactBox = ui.Textbox({
+  placeholder: 'Contact Email / Person',
+  style: {stretch:'horizontal'}
+});
+
+var useCaseDropdown = ui.Select({
+  items: [
+    'Finding reference sites',
+    'Scaling up successful restoration',
+    'Identifying habitat corridors'
+  ],
+  placeholder: 'Select Use Case',
+  style: {stretch: 'horizontal'}
+});
+
+controlPanel.add(projectNameBox);
+controlPanel.add(projectDescBox);
+controlPanel.add(contactBox);
+controlPanel.add(useCaseDropdown);
+
+var saveMetadataBtn = ui.Button({
+  label: 'Save Project Metadata',
+  style: {stretch: 'horizontal'},
+  onClick: function () {
+
+    projectName = projectNameBox.getValue();
+    projectDescription = projectDescBox.getValue();
+    projectContact = contactBox.getValue();
+    projectUseCase = useCaseDropdown.getValue();
+
+    print('✅ Project Metadata Saved');
+    print('Project Name:', projectName);
+    print('Description:', projectDescription);
+    print('Contact:', projectContact);
+    print('Use Case:', projectUseCase);
+  }
+});
+
+controlPanel.add(saveMetadataBtn);
 
 
 // ================= STEP 2: Unified Temporal Inputs (4 years) =================
@@ -1029,6 +1152,291 @@ controlPanel.add(ui.Panel([setYearsBtn1], ui.Panel.Layout.flow('horizontal')));
 // ================= STEP 4 =================
 controlPanel.add(ui.Label('Step 4: Apply Time-based Layers', {fontWeight: 'bold', fontSize: '16px'}));
 controlPanel.add(fire.getPanel());
+
+
+// ================= toggle view ============
+// var mainLayout = ui.root.widgets().get(0);   // existing split layout
+// var mainMap = mainLayout.widgets().get(0);   // original map
+
+// var leftMap = ui.Map();
+// var rightMap = ui.Map();
+
+// leftMap.setCenter(78.06, 23.04, 5);
+// rightMap.setCenter(78.06, 23.04, 5);
+
+// var mapLinker = ui.Map.Linker([leftMap, rightMap]);
+
+// controlPanel.add(ui.Label('Quick LULC Comparison Viewer', {
+//   fontWeight: 'bold',
+//   fontSize: '16px'
+// }));
+
+// var compareYear1 = ui.Textbox({
+//   placeholder: 'Year 1',
+//   value: '2000',
+//   style:{width:'80px'}
+// });
+
+// var compareYear2 = ui.Textbox({
+//   placeholder: 'Year 2',
+//   value: '2024',
+//   style:{width:'80px'}
+// });
+
+// var yearRow = ui.Panel([
+//   ui.Label('Year 1:'), compareYear1,
+//   ui.Label('Year 2:'), compareYear2
+// ], ui.Panel.Layout.flow('horizontal'));
+
+// controlPanel.add(yearRow);
+
+// function addGLCLegend(map) {
+
+//   var legend = ui.Panel({
+//     style: {
+//       position: 'bottom-left',
+//       padding: '8px 12px',
+//       backgroundColor: 'white'
+//     }
+//   });
+
+//   legend.add(ui.Label({
+//     value: 'GLC Land Cover',
+//     style: {fontWeight: 'bold', fontSize: '14px', margin: '0 0 6px 0'}
+//   }));
+
+//   var classes = [
+//     {name:'Croplands', color:'#FFFF00'},
+//     {name:'Forests', color:'#006400'},
+//     {name:'Shrubs / Scrubs', color:'#228B22'},
+//     {name:'Grasslands', color:'#7CFC00'},
+//     {name:'Wetlands', color:'#00FFFF'},
+//     {name:'Mangroves', color:'#00A86B'},
+//     {name:'Built-up', color:'#FF4500'},
+//     {name:'Barren', color:'#A9A9A9'},
+//     {name:'Water', color:'#0000FF'}
+//   ];
+
+//   classes.forEach(function(c){
+
+//     var row = ui.Panel({
+//       layout: ui.Panel.Layout.Flow('horizontal'),
+//       widgets: [
+
+//         ui.Label({
+//           style:{
+//             backgroundColor:c.color,
+//             padding:'8px',
+//             margin:'0 6px 4px 0'
+//           }
+//         }),
+
+//         ui.Label({
+//           value:c.name,
+//           style:{margin:'0 0 4px 0'}
+//         })
+
+//       ]
+//     });
+
+//     legend.add(row);
+//   });
+
+//   map.add(legend);
+// }
+
+// var lulc_mapping = {
+//   "croplands":[10,11,12,20],
+//   "forests":[51,52,61,62,71,72,81,82,91,92,101,102,111,112],
+//   "shrubs_scrubs":[120,121,122,130,140],
+//   "grasslands":[150,160,170],
+//   "wetlands":[180,190,200,210,220,230],
+//   "mangroves":[240],
+//   "builtup":[250],
+//   "barren":[260,261,262],
+//   "water":[270,280]
+// };
+
+// function remapGLC(img){
+
+//   var classValues = [];
+//   var classIds = [];
+
+//   var i = 1;
+
+//   Object.keys(lulc_mapping).forEach(function(key){
+
+//     lulc_mapping[key].forEach(function(v){
+//       classValues.push(v);
+//       classIds.push(i);
+//     });
+
+//     i++;
+
+//   });
+
+//   return img.remap(classValues, classIds).rename('lulc');
+// }
+
+// function showSplitLULC() {
+
+//   if (!roi_boundary) {
+//     print('Set region first');
+//     return;
+//   }
+
+//   var y1 = parseInt(compareYear1.getValue());
+//   var y2 = parseInt(compareYear2.getValue());
+
+//   if (isNaN(y1) || isNaN(y2)) {
+//     print('Enter valid years');
+//     return;
+//   }
+
+//   leftMap.layers().reset();
+//   rightMap.layers().reset();
+
+
+//   // ================= GLC DATASETS =================
+//   var five_year_dataset = ee.ImageCollection(
+//     'projects/sat-io/open-datasets/GLC-FCS30D/five-years-map'
+//   );
+
+//   var annual_dataset = ee.ImageCollection(
+//     'projects/sat-io/open-datasets/GLC-FCS30D/annual'
+//   );
+
+//   var five_year = five_year_dataset.mosaic().toInt();
+//   var annual = annual_dataset.mosaic().toInt();
+
+
+//   // ================= YEAR → IMAGE FUNCTION =================
+//   function getGLCImage(year){
+
+//     if (year > 2022) year = 2022;
+
+//     if (year === 1985) return five_year.select('b1').rename('lulc');
+//     if (year === 1990) return five_year.select('b2').rename('lulc');
+//     if (year === 1995) return five_year.select('b3').rename('lulc');
+
+//     if (year >= 2000 && year <= 2022){
+//       var band = 'b' + (year - 1999);
+//       return annual.select(band).rename('lulc');
+//     }
+
+//     print('Year not available: ', year);
+//     return null;
+//   }
+
+
+//   // ================= LOAD IMAGES =================
+//   var lulc1 = getGLCImage(y1);
+//   var lulc2 = getGLCImage(y2);
+
+//   if (!lulc1 || !lulc2){
+//     print('LULC images not available');
+//     return;
+//   }
+  
+//   // REMAP TO MAIN CLASSES
+//   lulc1 = remapGLC(lulc1).clip(roi_boundary);
+//   lulc2 = remapGLC(lulc2).clip(roi_boundary);
+
+//   // ================= VISUALIZATION =================
+//   var vis = {
+//     min:1,
+//     max:9,
+//     palette:[
+//       '#FFFF00', // croplands
+//       '#006400', // forests
+//       '#228B22', // shrubs
+//       '#7CFC00', // grass
+//       '#00FFFF', // wetlands
+//       '#00A86B', // mangroves
+//       '#FF4500', // builtup
+//       '#A9A9A9', // barren
+//       '#0000FF'  // water
+//     ]
+//   };
+
+
+//   // ================= ADD LAYERS =================
+//   leftMap.addLayer(lulc1, vis, 'GLC LULC ' + y1);
+//   rightMap.addLayer(lulc2, vis, 'GLC LULC ' + y2);
+  
+//   // ================= ROI BOUNDARY =================
+//   var roiOutline = ee.Image().byte().paint({
+//     featureCollection: roi_boundary,
+//     color: 1,
+//     width: 2
+//   });
+//   var roiVis = {palette:['black']};
+//   leftMap.addLayer(roiOutline, roiVis, 'ROI Boundary');
+//   rightMap.addLayer(roiOutline, roiVis, 'ROI Boundary');
+  
+//   // ================= ROI CENTER =================
+//   var center = roi_boundary.centroid();
+//   var centerFC = ee.FeatureCollection([
+//     ee.Feature(center)
+//   ]);
+//   var centerVis = {
+//     color: 'red',
+//     pointSize: 6
+//   };
+//   leftMap.addLayer(centerFC, centerVis, 'ROI Center');
+//   rightMap.addLayer(centerFC, centerVis, 'ROI Center');
+
+//   leftMap.centerObject(roi_boundary, 8);
+//   rightMap.centerObject(roi_boundary, 8);
+// }
+
+// store previous map
+// var previousMap = null;
+
+// var splitViewBtn = ui.Button({
+//   label:'Open Split LULC View',
+//   style:{stretch:'horizontal'},
+//   onClick:function(){
+
+//     showSplitLULC();
+
+//     var split = ui.SplitPanel({
+//       firstPanel:leftMap,
+//       secondPanel:rightMap,
+//       orientation:'horizontal',
+//       wipe:false,
+//       style:{stretch:'both'}
+//     });
+
+//     // remove original map first
+//     mainLayout.widgets().remove(mainMap);
+
+//     // insert split panel
+//     mainLayout.widgets().insert(0, split);
+//   }
+// });
+
+
+// var exitSplitBtn = ui.Button({
+//   label:'Return to Normal Map',
+//   style:{stretch:'horizontal'},
+//   onClick:function(){
+
+//     var current = mainLayout.widgets().get(0);
+
+//     // remove split panel
+//     mainLayout.widgets().remove(current);
+
+//     // restore original map
+//     mainLayout.widgets().insert(0, mainMap);
+//   }
+// });
+
+// controlPanel.add(splitViewBtn);
+// controlPanel.add(exitSplitBtn);
+
+// ======= continue ======
+
 controlPanel.add(changeDetection.getPanel());
 
 
@@ -1298,13 +1706,13 @@ function applyRulesFromJSON(jsonText) {
       'Kharif water': 2,
       'Kharif and rabi water': 3,
       'Kharif and rabi and zaid water': 4,
-      'Tree/Forests': 5,
-      'Barren lands': 6,
-      'Single Kharif Cropping': 7,
-      'Single Non-Kharif Cropping': 8,
-      'Double Cropping': 9,
-      'Triple Cropping': 10,
-      'Shrubs_Scrubs': 11
+      'Trees': 6,
+      'Barren lands': 7,
+      'Single Kharif Cropping': 8,
+      'Single Non-Kharif Cropping': 9,
+      'Double Cropping': 10,
+      'Triple Cropping': 11,
+      'Shrubs_Scrubs': 12
     };
   
     // Convert class NAMES → numeric VALUES
@@ -1337,6 +1745,62 @@ function applyRulesFromJSON(jsonText) {
   print('✅ Rules successfully re-initialized from JSON');
 }
 
+
+var exportVectorBtn = ui.Button({
+  label: 'Export AND as Polygons (SHP)',
+  onClick: function() {
+    if (!currentAndImage || !roi_boundary) {
+      print('⚠️ Compute AND and set ROI first.');
+      return;
+    }
+
+    // RE-EVALUATE AND LOGIC FOR EXPORT
+    // We force the image to be 1 only where currentAndImage is 1, 
+    // and explicitly mask out everything else.
+    var exportImage = currentAndImage
+      .updateMask(currentAndImage.gt(0)) // Remove all 0/NoData pixels
+      .clip(roi_boundary)                // Hard-cut at ecoregion boundary
+      .toInt();                          // Required for reduceToVectors
+
+    var polygons = exportImage.reduceToVectors({
+      geometry: roi_boundary,
+      scale: 30,                         // MUST be 30 to match LULC resolution
+      geometryType: 'polygon',
+      eightConnected: true,
+      labelProperty: 'AND',
+      maxPixels: 1e13,
+      bestEffort: false                  // Set to false to force accuracy
+    });
+
+    // Final spatial filter to remove any "ghost" pixels outside the boundary
+    var finalPolygons = polygons.filterBounds(roi_boundary);
+
+    // Export.table.toDrive({
+    //   collection: finalPolygons,
+    //   description: 'Export_AND_polygon',
+    //   folder: 'GEE_Exports',
+    //   fileFormat: 'SHP'
+    // });
+    
+    var url = finalPolygons.getDownloadURL({
+      format: 'kml'
+    });
+    
+    var link = ui.Label({
+      value: 'Download AND polygons (kml file)',
+      targetUrl: url,
+      style: {color: 'blue', textDecoration: 'underline'}
+    });
+    
+    controlPanel.add(link);
+    
+    print('Download URL:', url);
+
+    print('Strict Task Created. Run it in the Tasks tab.');
+  }
+});
+
+controlPanel.add(exportVectorBtn);
 
 
 // ====================== 2) Create DOWNLOAD button =========================
@@ -1394,6 +1858,14 @@ var downloadRulesBtn = ui.Button({
     ee.Number(1).evaluate(function () {
 
       var rulesObj = getAllRulesJSON_Object();
+      
+      // ================= ADD METADATA =================
+      rulesObj.metadata = {
+        project_name: projectName,
+        description: projectDescription,
+        contact: projectContact,
+        use_case: projectUseCase
+      };
 
       // ✅ ADD YEARS (from reference code)
       rulesObj.years = {
@@ -1429,95 +1901,283 @@ var downloadRulesBtn = ui.Button({
     });
   }
 });
+// controlPanel.add(downloadRulesBtn);
 
 
-controlPanel.add(downloadRulesBtn);
+// TEST --- IMAGES
 
-
-
-
-// var exportVectorBtn = ui.Button({
-//   label: 'Export AND as Polygons (SHP)',
-//   onClick: function() {
-
-//     if (!currentAndImage || !roi_boundary) {
-//       print('⚠️ Compute AND and set ROI first.');
-//       return;
-//     }
-
-//     // var polygons = currentAndImage.reduceToVectors({
-//     //   geometry: roi_boundary,
-//     //   scale: 30,
-//     //   geometryType: 'polygon',
-//     //   eightConnected: true,
-//     //   labelProperty: 'AND',
-//     //   reducer: ee.Reducer.countEvery()
-//     // });
-    
-//     var polygons = currentAndImage
-//     .clip(roi_boundary)   // VERY IMPORTANT
-//     .selfMask()
-//     .toInt()
-//     .reduceToVectors({
-//       geometry: roi_boundary,
-//       scale: 30,           
-//       geometryType: 'polygon',
-//       eightConnected: true,
-//       labelProperty: 'AND',
-//       // reducer: ee.Reducer.countEvery(),   
-//       maxPixels: 1e13,              // increase pixel limit
-//       bestEffort: true              // auto-adjust if still too large
-//     });
-
-//     Export.table.toDrive({
-//       collection: polygons,
-//       description: 'AND_Polygons',
-//       folder: 'GEE_Exports',
-//       fileFormat: 'SHP'
-//     });
-
-//     print('✅ Polygon export task created. Check Tasks tab.');
-//   }
+// var test = ee.Image.constant(1).visualize({
+//   palette: ['red']
 // });
 
-var exportVectorBtn = ui.Button({
-  label: 'Export AND as Polygons (SHP)',
-  onClick: function() {
-    if (!currentAndImage || !roi_boundary) {
-      print('⚠️ Compute AND and set ROI first.');
-      return;
-    }
+// controlPanel.add(ui.Thumbnail({
+//   image: test,
+//   params: {dimensions: 50}
+// }));
 
-    // RE-EVALUATE AND LOGIC FOR EXPORT
-    // We force the image to be 1 only where currentAndImage is 1, 
-    // and explicitly mask out everything else.
-    var exportImage = currentAndImage
-      .updateMask(currentAndImage.gt(0)) // Remove all 0/NoData pixels
-      .clip(roi_boundary)                // Hard-cut at ecoregion boundary
-      .toInt();                          // Required for reduceToVectors
 
-    var polygons = exportImage.reduceToVectors({
-      geometry: roi_boundary,
-      scale: 30,                         // MUST be 30 to match LULC resolution
-      geometryType: 'polygon',
-      eightConnected: true,
-      labelProperty: 'AND',
-      maxPixels: 1e13,
-      bestEffort: false                  // Set to false to force accuracy
-    });
+// var img = ee.Image('projects/ee-ojasvibansal/assets/ldd1516');
 
-    // Final spatial filter to remove any "ghost" pixels outside the boundary
-    var finalPolygons = polygons.filterBounds(roi_boundary);
+// var visImg = img.visualize({
+//   min: 0,
+//   max: 1,
+//   palette: ['black', 'orange']
+// });
 
-    Export.table.toDrive({
-      collection: finalPolygons,
-      description: 'Export_AND_polygon',
-      folder: 'GEE_Exports',
-      fileFormat: 'SHP'
-    });
+// var thumb = ui.Thumbnail({
+//   image: visImg,
+//   params: {
+//     dimensions: 200
+//   },
+//   style: {margin: '10px'}
+// });
 
-    print('✅ Strict Task Created. Run it in the Tasks tab.');
+// controlPanel.add(ui.Label('LDD Preview'));
+// controlPanel.add(thumb);
+
+
+
+function capitalize(str) {
+  return str.replace(/_/g, ' ')
+            .replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+}
+
+
+var rulesTablePanel = ui.Panel({
+  style: {
+    stretch: 'horizontal',
+    margin: '10px 0',
+    padding: '8px',
+    // border: '1px solid gray',
+    shown: false
   }
 });
 
-controlPanel.add(exportVectorBtn);
+function buildRulesTable() {
+  rulesTablePanel.clear();
+  var rules = getAllRulesJSON_Object();
+
+  if (!rules || Object.keys(rules).length === 0) {
+    rulesTablePanel.add(ui.Label('No rules selected.'));
+    return;
+  }
+
+  var table = ui.Panel({
+    layout: ui.Panel.Layout.flow('vertical'),
+    style: {
+      border: '1px solid #777',
+      padding: '0px',
+      margin: '10px 0px',
+      stretch: 'horizontal'
+    }
+  });
+
+  // Helper to make cells
+  function makeCell(text, width, bg, isHeader) {
+    return ui.Label({
+      value: text,
+      style: {
+        width: width,
+        stretch: 'both',
+        padding: '8px',
+        margin: '0px',
+        border: '0.5px solid #ccc',
+        backgroundColor: bg,
+        fontWeight: isHeader ? 'bold' : 'normal',
+        whiteSpace: 'pre-wrap',
+        fontSize: '13px'
+      }
+    });
+  }
+
+  // Header Row
+  var header = ui.Panel({
+    layout: ui.Panel.Layout.flow('horizontal'),
+    style: {margin: '0px', padding: '0px', stretch: 'horizontal'}
+  });
+  header.add(makeCell('Layer', '30%', '#e0e0e0', true));
+  header.add(makeCell('Values', '70%', '#e0e0e0', true));
+  table.add(header);
+  
+  // ================= ADD METADATA ROWS =================
+  var metadataRows = [
+    {label: 'Project Name', value: projectName},
+    {label: 'Description', value: projectDescription},
+    {label: 'Contact', value: projectContact},
+    {label: 'Use Case', value: projectUseCase}
+  ];
+  
+  metadataRows.forEach(function(item, idx) {
+  
+    if (!item.value) return; // skip empty fields
+  
+    var bg = (idx % 2 === 0) ? '#ffffff' : '#f9f9f9';
+  
+    var row = ui.Panel({
+      layout: ui.Panel.Layout.flow('horizontal'),
+      style: {margin: '0px', padding: '0px', stretch: 'horizontal'}
+    });
+  
+    row.add(makeCell(item.label, '30%', bg, false));
+    row.add(makeCell(item.value, '70%', bg, false));
+  
+    table.add(row);
+  });
+
+  var keys = Object.keys(rules);
+  var rowIndex = 0;
+
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
+    var value = rules[key];
+
+    if (value === null || value === undefined || (Array.isArray(value) && value.length === 0)) continue;
+
+    var valueStr;
+
+    if (key === 'rainfall' && Array.isArray(value)) {
+      valueStr = value[0] + ' - ' + value[1] + ' mm';
+    } else if (key === 'elevation' && Array.isArray(value)) {
+      valueStr = value[0] + ' - ' + value[1] + ' m';
+    } else if (key === 'change_detection' && typeof value === 'object') {
+      // valueStr = "From: " + value.from.join(', ') + "\nTo: " + value.to.join(', ');
+      
+      // var fromYears = value.from_years ? value.from_years.join(', ') : '';
+      // var toYears = value.to_years ? value.to_years.join(', ') : '';
+      // valueStr =
+      //   "From (" + fromYears + "): " + value.from.join(', ') +
+      //   "\nTo (" + toYears + "): " + value.to.join(', ');
+      
+      var selectedRegion = null;
+      var selectedName = regionDropdown.getValue();
+    
+      for (var j = 0; j < projectRegions.length; j++) {
+        if (projectRegions[j].name === selectedName) {
+          selectedRegion = projectRegions[j];
+          break;
+        }
+      }
+    
+      var yrs = (selectedRegion && selectedRegion.years) ? selectedRegion.years : [];
+    
+      var fromYear = (yrs.length >= 1) ? yrs[0] : '';
+      var toYear   = (yrs.length >= 2) ? yrs[1] : '';
+    
+      // var fromVals = value[0] || [];
+      // var toVals   = value[1] || [];
+      var fromVals = [];
+      var toVals = [];
+    
+      // CASE 1: Array format [[...],[...]]
+      if (Array.isArray(value)) {
+        fromVals = value[0] || [];
+        toVals   = value[1] || [];
+      }
+    
+      // CASE 2: Object format {from:[], to:[]}
+      else if (value.from && value.to) {
+        fromVals = value.from;
+        toVals   = value.to;
+      }
+    
+      valueStr =
+        "From (" + fromYear + "): " + fromVals.join(', ') +
+        "\nTo (" + toYear + "): " + toVals.join(', ');
+
+        
+    } else if (Array.isArray(value)) {
+      valueStr = value.join(', ');
+    } else if (typeof value === 'object') {
+      valueStr = JSON.stringify(value);
+    } else {
+      valueStr = String(value);
+    }
+
+    var bg = (rowIndex % 2 === 0) ? '#ffffff' : '#f9f9f9';
+    rowIndex++;
+
+    var row = ui.Panel({
+      layout: ui.Panel.Layout.flow('horizontal'),
+      style: {
+        margin: '0px',
+        padding: '0px',
+        stretch: 'horizontal'
+      }
+    });
+
+    row.add(makeCell(capitalize(key), '30%', bg, false));
+    row.add(makeCell(valueStr, '70%', bg, false));
+
+    table.add(row);
+  }
+
+  // Add table first (important for async update)
+  rulesTablePanel.add(table);
+
+  // ================= AREA ROW (ASYNC) =================
+  if (currentAndImage && roi_boundary) {
+
+    var areaImage = ee.Image.pixelArea().divide(10000); // hectares
+
+    var areaDict = currentAndImage
+      .multiply(areaImage)
+      .reduceRegion({
+        reducer: ee.Reducer.sum(),
+        geometry: roi_boundary,
+        scale: 30,
+        maxPixels: 1e13
+      });
+
+    areaDict.get('AND').evaluate(function(areaHa) {
+
+      var areaStr = areaHa
+        ? areaHa.toFixed(2) + ' ha (' + (areaHa / 100).toFixed(2) + ' km²)'
+        : '0 ha';
+
+      var row = ui.Panel({
+        layout: ui.Panel.Layout.flow('horizontal'),
+        style: {
+          margin: '0px',
+          padding: '0px',
+          stretch: 'horizontal'
+        }
+      });
+
+      row.add(makeCell('Area of AND Polygons', '30%', bg, false));
+      row.add(makeCell(areaStr, '70%', bg, false));
+
+      table.add(row);
+    });
+  }
+}
+
+var showRulesBtn = ui.Button({
+  label: 'Show Report',
+  style: {stretch: 'horizontal'},
+  onClick: function() {
+
+    // Toggle visibility
+    var isVisible = rulesTablePanel.style().get('shown');
+
+    if (isVisible) {
+      rulesTablePanel.style().set('shown', false);
+    } else {
+      buildRulesTable();   // rebuild fresh each time
+      rulesTablePanel.style().set('shown', true);
+    }
+  }
+});
+
+// controlPanel.add(showRulesBtn);
+
+var actionButtonsPanel = ui.Panel({
+  widgets: [downloadRulesBtn, showRulesBtn],
+  layout: ui.Panel.Layout.flow('horizontal'),
+  style: {
+    stretch: 'horizontal',
+    margin: '10px 0'
+  }
+});
+
+controlPanel.add(actionButtonsPanel);
+controlPanel.add(rulesTablePanel);
