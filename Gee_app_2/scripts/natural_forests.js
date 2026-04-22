@@ -53,7 +53,7 @@ exports.getPanel = function() {
   // Threshold input
   thresholdBox = ui.Textbox({
     placeholder: 'Threshold (0–250)',
-    value: '125',   // 0.5 probability ≈ 125 (scaled 0–250)
+    value: '',   // 0.5 probability ≈ 125 (scaled 0–250)
     style: {width: '100px'}
   });
 
