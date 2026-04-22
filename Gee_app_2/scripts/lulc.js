@@ -15,7 +15,7 @@ var lulcClasses = [
   {name: 'Kharif water', value: 2},
   {name: 'Kharif and rabi water', value: 3},
   {name: 'Kharif and rabi and zaid water', value: 4},
-  {name: 'Tree/Forests', value: 6},
+  {name: 'Trees', value: 6},
   {name: 'Barren lands', value: 7},
   {name: 'Single Kharif Cropping', value: 8},
   {name: 'Single Non-Kharif Cropping', value: 9},
