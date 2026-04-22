@@ -20,7 +20,7 @@ var themeNames = [
   'Built-Up',
   'Cultivated Trees',
   'Dune',
-  'Forest',
+  'Trees',
   'Saline Flat',
   'Savanna Grassland',
   'Savanna Shrubland',
