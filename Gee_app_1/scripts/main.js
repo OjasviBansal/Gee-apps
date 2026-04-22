@@ -13,12 +13,12 @@ var one_map = require('users/ojasvibansal_total_precipitation/Ecotype_App:gee-ap
 var soil = require('users/ojasvibansal_total_precipitation/Ecotype_App:gee-app/soil');
 var naturalForests = require('users/ojasvibansal_total_precipitation/Ecotype_App:gee-app/natural_forests');
 var temp = require('users/ojasvibansal_total_precipitation/Ecotype_App:gee-app/temp');
-
+// var ndviClusters = require('users/ojasvibansal_total_precipitation/Ecotype_App:gee-app/ndvi_clusters');
 // ================= GLOBAL VARIABLES =================
 var roi_boundary = null;
 var trainYears = {base: null, restoration: null}; // Step 3 years
 var inferYears = {base: null, current: null};     // Step 6 years
-
+var currentAndImage = null;
 var step5ValidationMask = null;
 
 // ================= CREATE TWO MAPS =================
@@ -60,6 +60,42 @@ controlPanel.add(ui.Label({
     'color': 'blue',
     'textDecoration': 'underline'}
 }));
+
+
+
+function computeCurrentAndImage() {
+  if (!roi_boundary) return null;
+
+  var masks = [];
+
+  var r  = rainfall.getLoadedImage ? rainfall.getLoadedImage() : null;
+  var t  = temp.getLoadedImage ? temp.getLoadedImage() : null;
+  var e  = elevation.getLoadedImage ? elevation.getLoadedImage() : null;
+  var s  = soil.getLoadedImage ? soil.getLoadedImage() : null;
+  var tr = terrain.getLoadedImage ? terrain.getLoadedImage() : null;
+  var f  = fire.getLoadedImage ? fire.getLoadedImage(inferYears.base, inferYears.current) : null;
+  var cd = changeDetection.getInferenceImage ? changeDetection.getInferenceImage() : null;
+  var lulc = lulcAnalysis.getLoadedImage ? lulcAnalysis.getLoadedImage() : null;
+  var lddImg = ldd.getLoadedImage ? ldd.getLoadedImage() : null;
+  var nfImg = naturalForests.getLoadedImage ? naturalForests.getLoadedImage() : null;
+  var onesImg = one_map.getOneMap ? one_map.getOneMap() : null;
+
+  [
+    r, t, e, s, tr, f, cd,
+    lulc, lddImg, nfImg, onesImg
+  ].forEach(function(img) {
+    if (img) masks.push(img);
+  });
+
+  if (masks.length === 0) return null;
+
+  var andImage = masks.reduce(function(acc, img) {
+    return acc.and(img.gt(0));
+  }, ee.Image(1));
+
+  return andImage.clip(roi_boundary).selfMask();
+}
+
 
 
 // ================= STEP 1: ECOREGION SELECTION =================
@@ -274,6 +310,7 @@ var setEcoLocationBtn = ui.Button({
     changeDetection.setROI(roi_boundary, trainingMap);
     fire.setROI(roi_boundary, trainingMap);
     one_map.setROI(roi_boundary, inferenceMap);
+    // ndviClusters.setROI(roi_boundary, trainingMap);
 
     var roiOutline = ee.Image().byte().paint({
     featureCollection: selectedFeature,
@@ -494,32 +531,30 @@ function clearRestorationSelection() {
 // Step 2 click handler
 var restorationClickHandler = function(coords) {
   if (!roi_set || !roi_boundary) {
-    print('⚠️ Please select an ecoregion first (Step 1).');
+    print('Please select an ecoregion first (Step 1).');
     return;
   }
-  loadingLabel.setValue('Loading layers at clicked point...');
-
-  // Prevent reloading if already set
   if (restorationPoint) {
     print("Restoration site already set. Use 'Clear & Set Again' to choose a new point.");
     return;
   }
-
+  loadingLabel.setValue('Loading layers at clicked point...');
   var point = ee.Geometry.Point([coords.lon, coords.lat]);
   var withinROI = roi_boundary.contains(point, ee.ErrorMargin(10)).getInfo();
-
-  // === Add larger, clearer restoration marker ===
   var markerImage = ee.Image().paint(point.buffer(100), 1).visualize({palette: ['#ff0000'], opacity: 0.6});
   restorationLayerObj = markerImage; 
-  replaceLayer(trainingMap, 'Restoration Site', ui.Map.Layer(markerImage, {}, 'Restoration Site'));
+  replaceLayer(trainingMap, 'Restoration Site',
+    ui.Map.Layer(markerImage, {}, 'Restoration Site'));
+  
   if (inferenceActive) {
     replaceLayer(inferenceMap, 'Restoration Site',
       ui.Map.Layer(markerImage, {}, 'Restoration Site'));
   }
-
-    
   restorationPoint = point;
   restorationZoom = trainingMap.getZoom();
+  point.evaluate(function() {
+    loadingLabel.setValue('Loaded layers at clicked point.');
+  });
   // print('Restoration site:', coords.lon, coords.lat, 'Zoom:', restorationZoom);
 
   // ---------------- OLD CLICK HANDLER LOGIC BEGINS ----------------
@@ -545,6 +580,7 @@ var restorationClickHandler = function(coords) {
     ldd.setROI(roi_boundary, inferenceMap);
     changeDetection.setROI(roi_boundary, trainingMap);
     fire.setROI(roi_boundary, trainingMap);
+    // ndviClusters.setROI(roi_boundary, trainingMap);
 
     // Draw ROI outline
     var roiOutline = ee.Image().byte().paint({
@@ -670,6 +706,7 @@ terrain.setKeepMarkerOnTop(keepRestorationMarkerOnTop);
 changeDetection.setKeepMarkerOnTop(keepRestorationMarkerOnTop);
 lulcAnalysis.setKeepMarkerOnTop(keepRestorationMarkerOnTop);
 one_map.setKeepMarkerOnTop(keepRestorationMarkerOnTop);
+// ndviClusters.setKeepMarkerOnTop(keepRestorationMarkerOnTop);
 
 
 // ================= Upload / Paste Rules JSON =================
@@ -716,6 +753,32 @@ var loadRulesBtn = ui.Button({
   onClick: function () {
     var rules = getRulesFromTextbox();
     if (!rules) return;
+    
+    // ================= LOAD METADATA FROM JSON =================
+    if (rules.metadata) {
+    
+      if (rules.metadata.project_name) {
+        projectNameBox.setValue(rules.metadata.project_name);
+        projectName = rules.metadata.project_name;
+      }
+    
+      if (rules.metadata.description) {
+        projectDescBox.setValue(rules.metadata.description);
+        projectDescription = rules.metadata.description;
+      }
+    
+      if (rules.metadata.contact) {
+        contactBox.setValue(rules.metadata.contact);
+        projectContact = rules.metadata.contact;
+      }
+    
+      if (rules.metadata.use_case) {
+        useCaseDropdown.setValue(rules.metadata.use_case);
+        projectUseCase = rules.metadata.use_case;
+      }
+    
+      print('📌 Project metadata loaded from JSON');
+    }
 
     // ================= YEARS (TRAINING ONLY) =================
     if (rules.years && rules.years.train) {
@@ -889,6 +952,7 @@ var applyRulesBtn = ui.Button({
     }
 
     print('📕 Inference map rules applied');
+    currentAndImage = computeCurrentAndImage();
   }
 });
 
@@ -1024,6 +1088,67 @@ var applyRulesBtn = ui.Button({
   }
 });
 
+
+// ================= PROJECT META INPUTS =================
+var projectName = null;
+var projectDescription = null;
+var projectContact = null;
+var projectUseCase = null;
+
+controlPanel.add(ui.Label('Project Metadata', {fontWeight:'bold', fontSize:'16px'}));
+
+var projectNameBox = ui.Textbox({
+  placeholder: 'Project Name',
+  style: {stretch:'horizontal'}
+});
+
+var projectDescBox = ui.Textbox({
+  placeholder: 'Description',
+  style: {stretch:'horizontal'}
+});
+
+var contactBox = ui.Textbox({
+  placeholder: 'Contact Email / Person',
+  style: {stretch:'horizontal'}
+});
+
+var useCaseDropdown = ui.Select({
+  items: [
+    'Finding reference sites',
+    'Scaling up successful restoration',
+    'Identifying habitat corridors'
+  ],
+  placeholder: 'Select Use Case',
+  style: {stretch: 'horizontal'}
+});
+
+controlPanel.add(projectNameBox);
+controlPanel.add(projectDescBox);
+controlPanel.add(contactBox);
+controlPanel.add(useCaseDropdown);
+
+var saveMetadataBtn = ui.Button({
+  label: 'Save Project Metadata',
+  style: {stretch: 'horizontal'},
+  onClick: function () {
+
+    projectName = projectNameBox.getValue();
+    projectDescription = projectDescBox.getValue();
+    projectContact = contactBox.getValue();
+    projectUseCase = useCaseDropdown.getValue();
+
+    print('✅ Project Metadata Saved');
+    print('Project Name:', projectName);
+    print('Description:', projectDescription);
+    print('Contact:', projectContact);
+    print('Use Case:', projectUseCase);
+  }
+});
+
+controlPanel.add(saveMetadataBtn);
+
+
+
 // ================= STEP 3 =================
 controlPanel.add(ui.Label('Step 3: Select Environment Layers', {fontWeight: 'bold', fontSize: '16px'}));
 controlPanel.add(ui.Label({
@@ -1040,6 +1165,7 @@ controlPanel.add(temp.getPanel());
 controlPanel.add(elevation.getPanel());
 controlPanel.add(soil.getPanel());
 controlPanel.add(terrain.getPanel());
+// controlPanel.add(ndviClusters.getPanel());
 
 // --- Reusable Go To My Location button ---
 function createGoToLocationButton(map, labelText) {
@@ -1200,6 +1326,7 @@ var enterStep3YearsBtn = ui.Button({
     trainYears.restoration = valEnd;
     changeDetection.setYears(valStart, valEnd, 'validation');
     fire.setYears(valStart, valEnd, 'validation');
+    // ndviClusters.setYear(trainYears.restoration);
     print('Step 4 years saved:');
     // showAndOnMap();
   }
@@ -1362,6 +1489,7 @@ var enterStep6YearsBtn = ui.Button({
     }
     inferYears.current = currentYear;
     lulcAnalysis.setYears(currentYear);
+    // ndviClusters.setYear(currentYear);
     if (trainYears.restoration) {
       changeDetection.setYears(trainYears.restoration, currentYear, 'test');
       print('Step 6 years saved (with change detection).');
@@ -1443,6 +1571,8 @@ var computeAndBtn = ui.Button({
     }
       
     andImage = andImage.clip(roi).selfMask();
+    
+    currentAndImage = andImage;
     
     inferenceMap.layers().forEach(function(layer) {
       var name = layer.getName ? layer.getName() : '';
@@ -1673,6 +1803,88 @@ function applyRulesFromJSON(jsonText) {
 }
 
 
+
+
+var exportVectorBtn = ui.Button({
+  label: 'Export AND as Polygons (SHP)',
+  onClick: function() {
+    if (!currentAndImage || !roi_boundary) {
+      print('⚠️ Compute AND and set ROI first.');
+      return;
+    }
+
+    // RE-EVALUATE AND LOGIC FOR EXPORT
+    // We force the image to be 1 only where currentAndImage is 1, 
+    // and explicitly mask out everything else.
+    var exportImage = currentAndImage
+      .updateMask(currentAndImage.gt(0)) // Remove all 0/NoData pixels
+      .clip(roi_boundary)                // Hard-cut at ecoregion boundary
+      .toInt();                          // Required for reduceToVectors
+
+    var polygons = exportImage.reduceToVectors({
+      geometry: roi_boundary,
+      scale: 30,                         // MUST be 30 to match LULC resolution
+      geometryType: 'polygon',
+      eightConnected: true,
+      labelProperty: 'AND',
+      maxPixels: 1e13,
+      bestEffort: false                  // Set to false to force accuracy
+    });
+
+    // Final spatial filter to remove any "ghost" pixels outside the boundary
+    var finalPolygons = polygons.filterBounds(roi_boundary);
+    // var finalPolygons = polygons
+    // .filterBounds(roi_boundary)
+    // .map(function(feature) {
+    //   return feature.set({
+    //     'style': {
+    //       color: 'ffff00',        // Yellow outline
+    //       fillColor: 'ffff00aa',  // Yellow fill (aa = transparency)
+    //       width: 1
+    //     }
+    //   });
+    // });
+    // var finalPolygons = polygons
+    // .filterBounds(roi_boundary)
+    // .map(function(feature) {
+    //   return feature.set({
+    //     'stroke': '#ffff00',      // outline color (yellow)
+    //     'stroke-width': 1,
+    //     'fill': '#ffff00',        // fill color (yellow)
+    //     'fill-opacity': 0.6       // transparency
+    //   });
+    // });
+
+    // Export.table.toDrive({
+    //   collection: finalPolygons,
+    //   description: 'Export_AND_polygon',
+    //   folder: 'GEE_Exports',
+    //   fileFormat: 'SHP'
+    // });
+    
+    var url = finalPolygons.getDownloadURL({
+      format: 'kml'
+    });
+    
+    var link = ui.Label({
+      value: 'Download AND polygons (kml file)',
+      targetUrl: url,
+      style: {color: 'blue', textDecoration: 'underline'}
+    });
+    
+    controlPanel.add(link);
+    
+    print('Download URL:', url);
+
+    print('Strict Task Created. Run it in the Tasks tab.');
+  }
+});
+
+controlPanel.add(exportVectorBtn);
+
+
+
+
 // ====================== 2) Create DOWNLOAD button =========================
 function convert_format(obj) {
 
@@ -1732,6 +1944,14 @@ var downloadRulesBtn = ui.Button({
 
       var rulesObj = getAllRulesJSON_Object();
       
+      // ================= ADD METADATA =================
+      rulesObj.metadata = {
+        project_name: projectName,
+        description: projectDescription,
+        contact: projectContact,
+        use_case: projectUseCase
+      };
+      
       // adding years description
       rulesObj.years = {
         train: {
@@ -1771,4 +1991,241 @@ controlPanel.add(ui.Label({
   value: 'You can also generate the rules in a JSON output and save it for your site. You can later copy-paste these rules to initialize the app the next time you want to use it. ',
   style: {'fontSize': '14px'}
 }));
-controlPanel.add(downloadRulesBtn);
+// controlPanel.add(downloadRulesBtn);
+
+
+var rulesTablePanel = ui.Panel({
+  style: {
+    stretch: 'horizontal',
+    margin: '10px 0',
+    padding: '8px',
+    // border: '1px solid gray',
+    shown: false
+  }
+});
+
+function capitalize(str) {
+  return str.replace(/_/g, ' ')
+            .replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+}
+
+
+function buildRulesTable() {
+  rulesTablePanel.clear();
+  var rules = getAllRulesJSON_Object();
+
+  if (!rules || Object.keys(rules).length === 0) {
+    rulesTablePanel.add(ui.Label('No rules selected.'));
+    return;
+  }
+
+  var table = ui.Panel({
+    layout: ui.Panel.Layout.flow('vertical'),
+    style: {
+      border: '1px solid #777',
+      padding: '0px',
+      margin: '10px 0px',
+      stretch: 'horizontal'
+    }
+  });
+
+  // Helper to make cells
+  function makeCell(text, width, bg, isHeader) {
+    return ui.Label({
+      value: text,
+      style: {
+        width: width,
+        stretch: 'both',
+        padding: '8px',
+        margin: '0px',
+        border: '0.5px solid #ccc',
+        backgroundColor: bg,
+        fontWeight: isHeader ? 'bold' : 'normal',
+        whiteSpace: 'pre-wrap',
+        fontSize: '13px'
+      }
+    });
+  }
+
+  // Header Row
+  var header = ui.Panel({
+    layout: ui.Panel.Layout.flow('horizontal'),
+    style: {margin: '0px', padding: '0px', stretch: 'horizontal'}
+  });
+  header.add(makeCell('Layer', '30%', '#e0e0e0', true));
+  header.add(makeCell('Values', '70%', '#e0e0e0', true));
+  table.add(header);
+  
+  // ================= ADD METADATA ROWS =================
+  var metadataRows = [
+    {label: 'Project Name', value: projectName},
+    {label: 'Description', value: projectDescription},
+    {label: 'Contact', value: projectContact},
+    {label: 'Use Case', value: projectUseCase}
+  ];
+  
+  metadataRows.forEach(function(item, idx) {
+  
+    if (!item.value) return; // skip empty fields
+  
+    var bg = (idx % 2 === 0) ? '#ffffff' : '#f9f9f9';
+  
+    var row = ui.Panel({
+      layout: ui.Panel.Layout.flow('horizontal'),
+      style: {margin: '0px', padding: '0px', stretch: 'horizontal'}
+    });
+  
+    row.add(makeCell(item.label, '30%', bg, false));
+    row.add(makeCell(item.value, '70%', bg, false));
+  
+    table.add(row);
+  });
+
+  var keys = Object.keys(rules);
+  var rowIndex = 0;
+
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
+    var value = rules[key];
+
+    if (value === null || value === undefined || (Array.isArray(value) && value.length === 0)) continue;
+
+    var valueStr;
+
+    if (key === 'rainfall' && Array.isArray(value)) {
+      valueStr = value[0] + ' - ' + value[1] + ' mm';
+    } else if (key === 'elevation' && Array.isArray(value)) {
+      valueStr = value[0] + ' - ' + value[1] + ' m';
+    } else if (key === 'change_detection' && typeof value === 'object') {
+      // valueStr = "From: " + value.from.join(', ') + "\nTo: " + value.to.join(', ');
+      var fromYear = trainYears.base || '';
+      var toYear   = trainYears.restoration || '';
+    
+      var fromVals = [];
+      var toVals = [];
+    
+      // Case 1: [[...], [...]]
+      if (Array.isArray(value)) {
+        fromVals = value[0] || [];
+        toVals   = value[1] || [];
+      }
+    
+      // Case 2: {from:[], to:[]}
+      else if (value.from && value.to) {
+        fromVals = value.from;
+        toVals   = value.to;
+      }
+    
+      valueStr =
+        "From (" + fromYear + "): " + fromVals.join(', ') +
+        "\nTo (" + toYear + "): " + toVals.join(', ');
+
+    } else if (Array.isArray(value)) {
+      valueStr = value.join(', ');
+    } else if (typeof value === 'object') {
+      valueStr = JSON.stringify(value);
+    } else {
+      valueStr = String(value);
+    }
+
+    var bg = (rowIndex % 2 === 0) ? '#ffffff' : '#f9f9f9';
+    rowIndex++;
+
+    var row = ui.Panel({
+      layout: ui.Panel.Layout.flow('horizontal'),
+      style: {
+        margin: '0px',
+        padding: '0px',
+        stretch: 'horizontal'
+      }
+    });
+
+    row.add(makeCell(capitalize(key), '30%', bg, false));
+    row.add(makeCell(valueStr, '70%', bg, false));
+
+    table.add(row);
+  }
+
+  // Add table first (important for async update)
+  rulesTablePanel.add(table);
+
+  // ================= AREA ROW (ASYNC) =================
+  if (currentAndImage && roi_boundary) {
+
+    var areaImage = ee.Image.pixelArea().divide(10000); // hectares
+
+    var areaDict = currentAndImage
+      .multiply(areaImage)
+      .reduceRegion({
+        reducer: ee.Reducer.sum(),
+        geometry: roi_boundary,
+        scale: 30,
+        maxPixels: 1e13
+      });
+
+    areaDict.values().get(0).evaluate(function(areaHa) {
+
+      var areaStr = areaHa
+        ? areaHa.toFixed(2) + ' ha (' + (areaHa / 100).toFixed(2) + ' km²)'
+        : '0 ha';
+
+      var row = ui.Panel({
+        layout: ui.Panel.Layout.flow('horizontal'),
+        style: {
+          margin: '0px',
+          padding: '0px',
+          stretch: 'horizontal'
+        }
+      });
+
+      row.add(makeCell('Area of AND Polygons', '30%', bg, false));
+      row.add(makeCell(areaStr, '70%', bg, false));
+
+      table.add(row);
+    });
+  }
+}
+
+var showRulesBtn = ui.Button({
+  label: 'Show Report',
+  style: {stretch: 'horizontal'},
+  onClick: function() {
+
+    // Toggle visibility
+    var isVisible = rulesTablePanel.style().get('shown');
+
+    if (isVisible) {
+      rulesTablePanel.style().set('shown', false);
+    } else {
+      buildRulesTable();   // rebuild fresh each time
+      rulesTablePanel.style().set('shown', true);
+    }
+  }
+});
+
+// controlPanel.add(showRulesBtn);
+
+var buttonRow = ui.Panel({
+  layout: ui.Panel.Layout.flow('horizontal'),
+  style: {
+    stretch: 'horizontal',
+    margin: '8px 0'
+  }
+});
+
+// Make both buttons occupy equal space
+downloadRulesBtn.style().set({
+  stretch: 'horizontal'
+});
+
+exportVectorBtn.style().set({
+  stretch: 'horizontal'
+});
+
+// Add buttons side-by-side
+buttonRow.add(downloadRulesBtn);
+buttonRow.add(showRulesBtn);
+
+// Add row to panel
+controlPanel.add(buttonRow);
+controlPanel.add(rulesTablePanel);
