@@ -38,19 +38,19 @@ exports.setKeepMarkerOnTop = function(fn) {
 };
 
 // ==================== Loaded image getter ====================
-exports.getLoadedImage = function(mode) {
-  // mode = 'validation' (training) or 'test' (inference)
-  if (!roi_boundary || selectedStart.length === 0 || selectedEnd.length === 0) return null;
-  if (mode === 'validation') {
-    if (!years.validation.start || !years.validation.end) return null;
-    return computeChange(years.validation.start, years.validation.end, selectedStart, selectedEnd, roi_boundary);
-  } else if (mode === 'test') {
-    if (!years.test.start || !years.test.end) return null;
-    return computeChange(years.test.start, years.test.end, selectedStart, selectedEnd, roi_boundary);
-  } else {
-    return null;
-  }
-};
+// exports.getLoadedImage = function(mode) {
+//   // mode = 'validation' (training) or 'test' (inference)
+//   if (!roi_boundary || selectedStart.length === 0 || selectedEnd.length === 0) return null;
+//   if (mode === 'validation') {
+//     if (!years.validation.start || !years.validation.end) return null;
+//     return computeChange(years.validation.start, years.validation.end, selectedStart, selectedEnd, roi_boundary);
+//   } else if (mode === 'test') {
+//     if (!years.test.start || !years.test.end) return null;
+//     return computeChange(years.test.start, years.test.end, selectedStart, selectedEnd, roi_boundary);
+//   } else {
+//     return null;
+//   }
+// };
 
 // ==================== ROI / REGISTRATION ====================
 exports.setROI = function(roi, mapInstance) {
@@ -79,7 +79,7 @@ exports.setYears = function(startYear, endYear, mode) {
 
 // ==================== LULC mapping & datasets ====================
 var lulc_mapping = {
-  "croplands":[10,11,12,20],"forests":[51,52,61,62,71,72,81,82,91,92,101,102,111,112],
+  "croplands":[10,11,12,20],"trees":[51,52,61,62,71,72,81,82,91,92,101,102,111,112],
   "shrubs_scrubs":[120,121,122,130,140],"grasslands":[150,160,170],
   "wetlands":[180,190,200,210,220,230],"mangroves":[240],"builtup":[250],
   "barren":[260,261,262],"water":[270,280]
@@ -115,7 +115,8 @@ function computeChange(startYear, endYear, startClasses, endClasses, roi) {
   var start_mask = getLayerMask(start_img, startClasses);
   var end_mask = getLayerMask(end_img, endClasses);
   var transition_mask = start_mask.and(end_mask).clip(roi);
-  return transition_mask.unmask(0);
+  // return transition_mask.unmask(0);
+  return transition_mask.selfMask();
 }
 
 // ==================== PUBLIC: training & inference images ====================
@@ -205,7 +206,7 @@ exports.getPanel = function() {
   
     var m = activeMaps[0];
   
-    // 🔥 REMOVE OLD Change Detection layers (important)
+    // REMOVE OLD Change Detection layers (important)
     var mapLayers = m.layers();
     for (var i = mapLayers.length() - 1; i >= 0; i--) {
       if (mapLayers.get(i).getName() === 'Change Detection') {
@@ -213,12 +214,12 @@ exports.getPanel = function() {
       }
     }
   
-    // 🔁 Recompute training image
+    // Recompute training image
     var trainImg = exports.getTrainingImage();
     if (!trainImg) return;
   
-    // ➕ Add exactly ONE preview layer
-    var vis = { palette: ['black', 'red'], min: 0, max: 1 };
+    // Add exactly ONE preview layer
+    var vis = { palette: ['red'], min: 0, max: 1 };
     var layer = m.addLayer(trainImg, vis, 'Change Detection');
   
     // Track for clearing later
@@ -356,5 +357,4 @@ exports.getRule = function(mode) {
       "to": selectedEnd
   };
 };
-
 
